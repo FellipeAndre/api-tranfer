@@ -10,8 +10,19 @@ spring:
           connectTimeout: 5000 #tempo maximo de se conectar com a api externa
           readTimeout: 300  #tempo de r4esposta da api
           loggerLevel: FULL
-          retryer:
-            period: 100  #retentativa caso o sistema externo fique fora
-            maxPeriod: 1000 #tempo maximo de retentativa
-            maxAttempts: 3 #quantidade de vezes para tentar antes de falhar
+  resilience4j:
+    circuitbreaker:
+      instances:
+        default:
+          sliding-window-size: 10
+          failure-rate-threshold: 50
+          wait-duration-in-open-state: 10s
+    retry:
+      instances:
+        default:
+          max-attempts: 3
+          wait-duration: 1s
+          retry-exceptions:
+            - feign.RetryableException
+
 

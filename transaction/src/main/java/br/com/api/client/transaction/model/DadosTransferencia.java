@@ -5,12 +5,15 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class ClientResponse {
+public class DadosTransferencia {
+
+    private Double saida;
+
+    private String numeroConta;
 
     private String nome;
-    private ContaResponse contaResponse;
 }

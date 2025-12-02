@@ -2,8 +2,11 @@ package br.com.api.client.transaction.client.impl;
 
 import br.com.api.client.transaction.client.CadastroClient;
 import br.com.api.client.transaction.client.CadastroFeignClient;
+import br.com.api.client.transaction.mapper.ClientResponseMapper;
 import br.com.api.client.transaction.model.ClientRequest;
 import br.com.api.client.transaction.model.ClientResponse;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -12,14 +15,17 @@ import org.springframework.stereotype.Component;
 public class CadastroClientImpl implements CadastroClient {
 
     private final CadastroFeignClient cadastroClient;
+    private final ClientResponseMapper mapper;
 
-    //TODO CRIAR CIRCUT BREAK PARA CENARIOS DE FALHA
+    @CircuitBreaker(name = "default", fallbackMethod = "clientFallBack")
+    @Retry(name = "default")
     @Override
     public ClientResponse consultarCadastro(String cpf) {
         return cadastroClient.consultar(cpf);
     }
 
-    public void clientFallBack(){
-
+    public ClientResponse clientFallBack(String cpf, Throwable ex){
+        return mapper.getClientResponse();
     }
+
 }
