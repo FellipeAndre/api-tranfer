@@ -5,17 +5,13 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@NoArgsConstructor
 @AllArgsConstructor
+@NoArgsConstructor
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class DadosTransferencia {
+public class BacenResponse {
 
-    private Double saida;
+   private String message;
 
-    private String numeroConta;
-
-    private String nome;
-
-    private BacenResponse responseBacen;
+    private Integer cod;
 }

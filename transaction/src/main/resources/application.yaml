@@ -20,9 +20,10 @@ spring:
     retry:
       instances:
         default:
-          max-attempts: 3
+          max-attempts: 4
           wait-duration: 1s
           retry-exceptions:
             - feign.RetryableException
+            - feign.FeignException
 
 

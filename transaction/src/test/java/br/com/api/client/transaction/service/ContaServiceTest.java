@@ -1,29 +1,43 @@
 package br.com.api.client.transaction.service;
 
+import br.com.api.client.transaction.client.BacenClient;
 import br.com.api.client.transaction.enumerable.TipoTransacao;
 import br.com.api.client.transaction.exception.DisableAccountException;
 import br.com.api.client.transaction.exception.LimiteIndisponivelException;
+import br.com.api.client.transaction.model.BacenResponse;
 import br.com.api.client.transaction.model.ClientResponse;
 import br.com.api.client.transaction.model.ContaResponse;
 import br.com.api.client.transaction.model.DadosTransferencia;
 import br.com.api.client.transaction.service.impl.ContaServiceImpl;
+import feign.FeignException;
+import feign.Request;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
+import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
-
-@ExtendWith(MockitoExtension.class)
+import java.util.Map;
+@SpringBootTest
+@ActiveProfiles("test")
 class ContaServiceTest {
 
-    @InjectMocks
+    @Autowired
     ContaServiceImpl contaService;
 
+    @MockBean
+    BacenClient bacenClient;
+
     @Test
-    void transferirContaAtiva() {
+    void transferirContaAtiva() throws Exception {
 
         var response = new ClientResponse();
         var conta = new ContaResponse();
@@ -54,6 +68,7 @@ class ContaServiceTest {
         dados.setSaida(40.0);
         dados.setNumeroConta("0001");
         List<DadosTransferencia> dadosTransferencias = new ArrayList<>();
+        dadosTransferencias.add(dados);
         conta.setSaldo(30.0);
         conta.setContaAtiva(true);
         conta.setTransferencias(dadosTransferencias);
@@ -74,6 +89,7 @@ class ContaServiceTest {
         dados.setSaida(40.0);
         dados.setNumeroConta("0001");
         List<DadosTransferencia> dadosTransferencias = new ArrayList<>();
+        dadosTransferencias.add(dados);
         conta.setSaldo(30.0);
         conta.setContaAtiva(false);
         conta.setTransferencias(dadosTransferencias);
@@ -95,18 +111,41 @@ class ContaServiceTest {
         dados.setSaida(1000.54);
         dados.setNumeroConta("0001");
         List<DadosTransferencia> dadosTransferencias = new ArrayList<>();
+        dadosTransferencias.add(dados);
         conta.setSaldo(0.0);
         conta.setContaAtiva(true);
         conta.setTransferencias(dadosTransferencias);
         response.setNome("teste");
         response.setContaResponse(conta);
 
-        var result = contaService.validarConta(conta, TipoTransacao.CONSULTAR);
-
 
         Assertions.assertThrows(LimiteIndisponivelException.class, () ->{
             contaService.validarConta(conta, TipoTransacao.CONSULTAR);
         });
+    }
+
+    @Test
+    void transferirNotificarBacen() {
+
+        var response = new ClientResponse();
+        var conta = new ContaResponse();
+        var dados = new DadosTransferencia();
+        dados.setNome("teste");
+        dados.setSaida(40.0);
+        dados.setNumeroConta("0001");
+        List<DadosTransferencia> dadosTransferencias = new ArrayList<>();
+        dadosTransferencias.add(dados);
+        conta.setSaldo(4000.0);
+        conta.setContaAtiva(true);
+        conta.setTransferencias(dadosTransferencias);
+        response.setNome("teste");
+        response.setContaResponse(conta);
+
+        var result = contaService.validarConta(conta, TipoTransacao.TRANSFERIR);
+
+        Assertions.assertNotNull(result);
+
+        Mockito.verify(bacenClient, Mockito.times(1)).notificarBacen(dados);
 
     }
 }

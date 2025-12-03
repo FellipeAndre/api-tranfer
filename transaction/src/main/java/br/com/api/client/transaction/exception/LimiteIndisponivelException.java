@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @Getter
 public class LimiteIndisponivelException extends RuntimeException{
 
-    private Integer status = 401;
+    private int status = 401;
 
     public LimiteIndisponivelException(){
         super();

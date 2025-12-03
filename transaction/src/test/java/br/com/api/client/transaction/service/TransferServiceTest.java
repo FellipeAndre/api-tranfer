@@ -15,27 +15,29 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.util.ArrayList;
 import java.util.List;
 
-@ExtendWith(MockitoExtension.class)
+@SpringBootTest
+@ActiveProfiles("test")
 class TransferServiceTest {
 
-    @InjectMocks
-    TransferService conectClientService;
+    @Autowired
+    TransferService transferService;
 
-    @Mock
-    BacenClientImpl bacenClient;
-
-    @Mock
+    @MockBean
     CadastroClientImpl cadastroClient;
 
-    @Mock
+    @MockBean
     ContaServiceImpl contaService;
 
     @Test
-    void getClient() {
+    void consultarSaldoCliente()  {
 
         var cpf = "44653378800";
         var response = new ClientResponse();
@@ -53,7 +55,7 @@ class TransferServiceTest {
 
         Mockito.when(cadastroClient.consultarSaldo(Mockito.anyString())).thenReturn(response);
 
-        var result = conectClientService.consultarSaldo(cpf);
+        var result = transferService.consultarSaldo(cpf);
 
         Assertions.assertNotNull(result);
 

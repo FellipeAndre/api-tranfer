@@ -1,10 +1,10 @@
 package br.com.api.client.transaction.client;
 
 import br.com.api.client.transaction.model.DadosTransferencia;
-import br.com.api.client.transaction.model.RetornoBacen;
+import br.com.api.client.transaction.model.BacenResponse;
 
 public interface BacenClient{
 
-    RetornoBacen notificarBacen(DadosTransferencia requestBacen);
+    BacenResponse notificarBacen(DadosTransferencia requestBacen);
 
 }

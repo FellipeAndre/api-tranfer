@@ -3,35 +3,41 @@ package br.com.api.client.transaction.service.impl;
 import br.com.api.client.transaction.client.BacenClient;
 import br.com.api.client.transaction.enumerable.TipoTransacao;
 import br.com.api.client.transaction.exception.DisableAccountException;
+import br.com.api.client.transaction.exception.ErroBacenIndisponivelException;
 import br.com.api.client.transaction.exception.LimiteIndisponivelException;
-import br.com.api.client.transaction.mapper.ClientResponseMapper;
-import br.com.api.client.transaction.model.ClientResponse;
+import br.com.api.client.transaction.model.BacenResponse;
 import br.com.api.client.transaction.model.ContaResponse;
 import br.com.api.client.transaction.model.DadosTransferencia;
-import br.com.api.client.transaction.model.dto.DadosTransferenciaDTO;
 import br.com.api.client.transaction.service.ContaService;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
+import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class ContaServiceImpl implements ContaService {
 
     private final BacenClient bacenClient;
+    private final static Integer ERRO_BACEN = 429;
 
     @Override
     public ContaResponse validarConta(ContaResponse contaResponse, TipoTransacao transacao) {
         var activeAccount = contaResponse.getContaAtiva();
-        DadosTransferencia transferencia = new DadosTransferencia();
-        var valorTransferencias = 0;
-
-        for (DadosTransferencia action : contaResponse.getTransferencias()) {
-            transferencia = action;
-            valorTransferencias += action.getSaida();
-        }
+        BacenResponse bacen = new BacenResponse();
+        List<DadosTransferencia> transferencia = new ArrayList<>();
+        var valorTransferencias = 0.0;
 
         if(activeAccount){
 
+            for (DadosTransferencia action : contaResponse.getTransferencias()) {
+                transferencia.add(action);
+                valorTransferencias = action.getSaida();
+            }
+            contaResponse.setTransferencias(transferencia);
             var limitDisponible = contaResponse.getSaldo() < valorTransferencias;
 
             if (limitDisponible){
@@ -45,11 +51,21 @@ public class ContaServiceImpl implements ContaService {
             if (valorTransferencias > contaResponse.getLimiteDiario()) {
                 throw new LimiteIndisponivelException("O seu limite diario é de até 1000 reais ");
             } else {
-                this.bacenClient.notificarBacen(transferencia);
+               bacen = bacenClient.notificarBacen(transferencia.get(0));
+               checarResponseBacen(bacen.getCod());
+               contaResponse.getTransferencias().get(0).setResponseBacen(bacen);
             }
         }
 
         return contaResponse;
     }
+
+    private void checarResponseBacen(Integer cod){
+        if(cod == ERRO_BACEN){
+            throw new ErroBacenIndisponivelException();
+        }
+    }
+
+
 
 }

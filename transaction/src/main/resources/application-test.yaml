@@ -1,0 +1,30 @@
+server:
+  port: 0
+
+spring:
+  cloud:
+    discovery:
+      enabled: false
+
+resilience4j:
+  circuitbreaker:
+    instances:
+      default:
+        sliding-window-size: 10
+        failure-rate-threshold: 50
+        wait-duration-in-open-state: 10s
+  retry:
+    instances:
+      default:
+        max-attempts: 4
+        wait-duration: 1s
+        retry-exceptions:
+          - feign.FeignException
+          - feign.RetryableException
+
+feign:
+  client:
+    config:
+      default:
+        connectTimeout: 500
+        readTimeout: 500

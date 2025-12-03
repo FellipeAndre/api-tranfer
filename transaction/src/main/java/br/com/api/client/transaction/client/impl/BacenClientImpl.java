@@ -3,7 +3,7 @@ package br.com.api.client.transaction.client.impl;
 import br.com.api.client.transaction.client.BacenClient;
 import br.com.api.client.transaction.client.BacenFeignClient;
 import br.com.api.client.transaction.model.DadosTransferencia;
-import br.com.api.client.transaction.model.RetornoBacen;
+import br.com.api.client.transaction.model.BacenResponse;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import io.github.resilience4j.retry.annotation.Retry;
 import lombok.RequiredArgsConstructor;
@@ -16,16 +16,16 @@ public class BacenClientImpl implements BacenClient  {
     private final BacenFeignClient bacenFeingClient;
 
     @Retry(name = "default")
-    @CircuitBreaker(name = "default", fallbackMethod = "BacenFallback")
+    @CircuitBreaker(name = "default", fallbackMethod = "bacenFallback")
     @Override
-    public RetornoBacen notificarBacen(DadosTransferencia requestBacen) {
+    public BacenResponse notificarBacen(DadosTransferencia requestBacen) {
 
-        RetornoBacen response = bacenFeingClient.notificar(requestBacen);
+        BacenResponse response = bacenFeingClient.notificar(requestBacen);
 
         return response;
     }
 
-    public String BacenFallback(){
-        return "Sistema Indisponível";
+    public BacenResponse bacenFallback(DadosTransferencia requestBacen, Throwable throwable){
+        return new BacenResponse("Sistema Indisponível", 429);
     }
 }

@@ -1,7 +1,7 @@
 package br.com.api.client.transaction.client;
 
 import br.com.api.client.transaction.model.DadosTransferencia;
-import br.com.api.client.transaction.model.RetornoBacen;
+import br.com.api.client.transaction.model.BacenResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.stereotype.Component;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -11,5 +11,5 @@ import org.springframework.web.bind.annotation.PostMapping;
 public interface BacenFeignClient {
 
     @PostMapping
-    RetornoBacen notificar(DadosTransferencia transferencia);
+    BacenResponse notificar(DadosTransferencia transferencia);
 }
