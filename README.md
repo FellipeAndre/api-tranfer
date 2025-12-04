@@ -3,6 +3,7 @@
 📖 API de Transferência Bancária Resiliente
 
 #📌 Visão Geral do Projeto
+
   Este projeto implementa uma API de Transferência Bancária construída em Spring Boot 3 e Maven, focada em atender a requisitos de alta disponibilidade, baixa latência (< 100ms) e alta vazão (6.000 TPS).
   A aplicação simula operações de consulta de saldo e transferência entre contas, utilizando políticas de Resiliência (Circuit Breaker e Retry) para garantir a estabilidade da integração com serviços externos (BACEN/Cadastro).
 
