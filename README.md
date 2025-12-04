@@ -50,11 +50,10 @@
 
 #🏗️ Arquitetura de Solução na AWS (Design Cloud)
 
-  A solução é desenhada para ser serverless (usando Fargate e Lambda) e orientada a eventos, garantindo que o requisito de 6.000 transações por segundo com latência abaixo de 100ms seja atingido.
+  A solução é desenhada para ser serverless (usando Lambda) e orientada a eventos, garantindo que o requisito de 6.000 transações por segundo com latência abaixo de 100ms seja atingido.
 
-  Amazon ECS (Fargate):	Plataforma serverless para rodar contêineres Docker da API. Fornece escalabilidade horizontal automática (Auto Scaling), lidando com oscilações de carga.	Escalabilidade, Alta Disponibilidade.
 
-  Amazon Aurora PostgreSQL: Banco de Dados relacional ACID para garantir a integridade e segurança das transações. Escolhido por sua alta performance e escalabilidade na AWS.	Consistência, Performance.
+  Amazon Aurora PostgreSQL: Banco de Dados relacional para garantir a integridade e segurança das transações. Escolhido por sua alta performance e escalabilidade na AWS.	Consistência, Performance.
 
   AWS API Gateway & ALB:	Atuam como ponto de entrada e balanceador de carga, distribuindo o tráfego para o cluster ECS.	Balanceamento, Segurança.
 
@@ -64,6 +63,10 @@
 
   Throttling (429 BACEN)	Retry + Assincronismo	Após as tentativas do @Retry falharem, a notificação é enviada para uma fila Amazon SQS. Uma AWS Lambda consome essa fila, garantindo que a notificação seja reprocessada até o sucesso (Event-Driven).
 
-  Observabilidade	AWS X-Ray + CloudWatch	X-Ray para tracing distribuído (diagnóstico de latência) e CloudWatch para agregação de logs (logs, métricas do Circuit Breaker e alarmes).
+  Observabilidade CloudWatch para agregação de logs (logs, métricas do Circuit Breaker e alarmes).
+
+ <img width="756" height="544" alt="image" src="https://github.com/user-attachments/assets/7acf898b-cb91-4668-a105-573c7ea118ad" />
+
+
 
   
